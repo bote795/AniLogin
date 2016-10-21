@@ -1,0 +1,26 @@
+{
+  "name": "anilogin",
+  "version": "0.0.1",
+  "description": "Anime login system\r #Project Information\r ##Goal\r Create a node package that will have all anime provider login systems integrated.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bote795/AniLogin.git"
+  },
+  "keywords": [
+    "anime",
+    "anilist",
+    "myanimelist",
+    "humming",
+    "bird"
+  ],
+  "author": "Nicolas Botello",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bote795/AniLogin/issues"
+  },
+  "homepage": "https://github.com/bote795/AniLogin#readme"
+}
