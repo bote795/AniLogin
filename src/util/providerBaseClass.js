@@ -10,24 +10,27 @@ class AnimeProvider
      * this._baseAPIURL
      */
     constructor()
-        {
-            //example https://anilist.co/api/
-            this._baseAPIURL = "provider";
-        }
-        //username or userid
-        //check what is needed
+    {
+        //example https://anilist.co/api/
+        this._baseAPIURL = "provider";
+    }
+
+    //username or userid
+    //check what is needed
     getAnimeList(username = this._user)
-        {
+    {
 
-        }
-        //id 
-        //values = {}
+    }
+
+    //id 
+    //values = {}
     addAnime(id, values = {})
-        {
+    {
 
-        }
-        //id 
-        //values = {}
+    }
+
+    //id 
+    //values = {}
     updateAnime(id, values = {})
     {
 
