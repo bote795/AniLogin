@@ -5,7 +5,7 @@ const isExpired = require('./../utils').isExpired;
 const debug = require('debug')('anilogin:object');
 
 //AnilistProvider 
-export default class AnilistProvider
+class AnilistProvider
 {
     /**
      * this._user: {
@@ -99,8 +99,9 @@ export default class AnilistProvider
     {
         return this._get(`anime/search/${name}`);
     }
-    refreshToken()
+    getRefreshToken()
     {
+
         return this._refreshToken()
             .then(data =>
             {
@@ -108,9 +109,18 @@ export default class AnilistProvider
                 this._expires = data.expires;
                 this._refresh_token = data.refresh_token;
             })
+            .then(
+            {} =>
+            {
+                this.save();
+            });
     }
     _refreshToken()
     {
+        if (!this._client._id || !this._client._secret || !this._code)
+        {
+            return Promise.reject(new Error('Token does not exist or has expired'));
+        }
         let formData = {
             grant_type: 'refresh_token',
             client_id: this._client._id,
@@ -125,6 +135,7 @@ export default class AnilistProvider
             },
             body: JSON.stringify(formData)
         };
+        debug(`Asking for for refreshToken Anilist's API`);
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
@@ -144,6 +155,10 @@ export default class AnilistProvider
     }
     _authenticate()
     {
+        if (!this._client._id || !this._client._secret || !this._refresh_token)
+        {
+            return Promise.reject(new Error('Token does not exist or has expired'));
+        }
         let formData = {
             grant_type: 'refresh_token',
             client_id: this._client._id,
@@ -158,6 +173,7 @@ export default class AnilistProvider
             },
             body: JSON.stringify(formData)
         };
+        debug(`Authenticating user with Anilist's API`);
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
@@ -219,5 +235,14 @@ export default class AnilistProvider
             }
         });
     }
-
+    save()
+    {
+        let temp = {
+            access_token: this._accessToken
+            expires: this._expires
+            refresh_token: this._refresh_token
+        }
+        console.log(temp);
+    }
 }
+module.exports = anilistProvider;

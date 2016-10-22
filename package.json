@@ -26,5 +26,10 @@
   "dependencies": {
     "debug": "^2.2.0",
     "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-cli": "^6.16.0",
+    "babel-core": "^6.17.0"
   }
 }
