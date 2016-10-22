@@ -22,5 +22,9 @@
   "bugs": {
     "url": "https://github.com/bote795/AniLogin/issues"
   },
-  "homepage": "https://github.com/bote795/AniLogin#readme"
+  "homepage": "https://github.com/bote795/AniLogin#readme",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "isomorphic-fetch": "^2.2.1"
+  }
 }

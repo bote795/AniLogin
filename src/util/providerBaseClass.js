@@ -1,11 +1,14 @@
+'use strict';
+
 //animeProvider Example
 class AnimeProvider
 {
     /**
      * Possible user params
-     * this._username
-     * this._id
-     * this._password (optional)
+     * this._user: {
+     *  _username: '',
+     *  _id: '',
+     * }
      * this._authToken
      * this._baseAPIURL
      */
@@ -39,4 +42,21 @@ class AnimeProvider
     {
 
     }
+
+    authenticate()
+    {
+
+    }
+
+    _request(query, opts)
+    {
+        //user not signed in
+        if ()
+        {
+            return Promise.reject(new Error('Token does not exist or has expired'));
+        }
+
+        request(this._baseAPIURL, query, opts)
+    }
+
 }
