@@ -1,7 +1,7 @@
 'use strict';
 
 const request = require('./../util/request');
-const isExpired = require('./../utils').isExpired;
+const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
 
 //AnilistProvider 
@@ -31,9 +31,10 @@ class AnilistProvider
      */
     constructor(client, username, code)
     {
-        this._client = object.assign(
+        this._client = Object.assign(
         {}, client);
         this._baseAPIURL = "https://anilist.co/api/";
+        this._user = {};
         this._user._username = username;
         //pin code
         this._code = code;
@@ -108,12 +109,13 @@ class AnilistProvider
                 this._accessToken = data.token;
                 this._expires = data.expires;
                 this._refresh_token = data.refresh_token;
+                return {};
             })
             .then(
-            {} =>
-            {
-                this.save();
-            });
+                result =>
+                {
+                    this.save();
+                })
     }
     _refreshToken()
     {
@@ -139,9 +141,11 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
-                token: result.access_token,
-                expires: result.expires
-                refresh_token: result.refresh_token;
+                return {
+                    token: result.access_token,
+                    expires: result.expires,
+                    refresh_token: result.refresh_token
+                }
             });
     }
     authenticate()
@@ -177,8 +181,10 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
-                token: result.access_token,
-                expires: result.expires
+                return {
+                    token: result.access_token,
+                    expires: result.expires
+                }
             });
     }
     _get(query, opts = {})
@@ -214,35 +220,32 @@ class AnilistProvider
         {
             return Promise.reject(new Error('Token does not exist or has expired'));
         }
-        let opts = {
-            headers:
-            {
-                Authorization: `Basic ${token}`,
-                'Content-Type': 'application/json'
-            }
+        opts.headers = {
+            Authorization: `Basic ${token}`,
+            'Content-Type': 'application/json'
         };
-        return request(this._baseAPIURL, query, opts);
-        .catch(error =>
-        {
-            if (error.message !== 'Token does not exist or has expired')
+        return request(this._baseAPIURL, query, opts)
+            .catch(error =>
             {
-                throw error;
-            }
-            else
-            {
-                return this.authenticate()
-                    .then(() => this.request(query, opts));
-            }
-        });
+                if (error.message !== 'Token does not exist or has expired')
+                {
+                    throw error;
+                }
+                else
+                {
+                    return this.authenticate()
+                        .then(() => this.request(query, opts));
+                }
+            });
     }
     save()
     {
         let temp = {
-            access_token: this._accessToken
-            expires: this._expires
+            access_token: this._accessToken,
+            expires: this._expires,
             refresh_token: this._refresh_token
         }
         console.log(temp);
     }
 }
-module.exports = anilistProvider;
+module.exports = AnilistProvider;

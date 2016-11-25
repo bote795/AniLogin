@@ -1,8 +1,8 @@
 'use strict';
 
-const isExpired = require('./utils').isExpired;
+const isExpired = require('./util').isExpired;
 const fetch = require('isomorphic-fetch');
-const debug = require('debug')('anilogin:request');
+const debug = require('debug')('aniloginrequest');
 
 let request = function(url, query, opts = {})
 {
@@ -29,3 +29,7 @@ let request = function(url, query, opts = {})
 };
 
 module.exports = request;
+
+
+//https://anilist.co/api/auth/authorize?grant_type=authorization_pin&client_id=bote795-nuwwf&response_type=pin
+//https://anilist.co/api/auth/authorize?grant_type=authorization_code&client_id=bote795-nuwwf&redirect_uri=&response_type=code
