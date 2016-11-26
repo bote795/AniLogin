@@ -2,12 +2,12 @@
 
 const isExpired = require('./util').isExpired;
 const fetch = require('isomorphic-fetch');
-const debug = require('debug')('aniloginrequest');
+const debug = require('debug')('anilogin:request');
 
 let request = function(url, query, opts = {})
 {
     debug(
-        `Requesting ${url} with. Query ${query}`,
+        `Requesting ${url} with. Query ${query}`
     );
     let fullQuery = `${url + query}`;
 

@@ -3,7 +3,7 @@
 const request = require('./../util/request');
 const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
-
+const writeToFile = require('./../util/util').writeToFile;
 //AnilistProvider 
 class AnilistProvider
 {
@@ -31,8 +31,10 @@ class AnilistProvider
      */
     constructor(client, username, code)
     {
+        debug("in constructor");
         this._client = Object.assign(
         {}, client);
+        debug(this._client);
         this._baseAPIURL = "https://anilist.co/api/";
         this._user = {};
         this._user._username = username;
@@ -102,26 +104,29 @@ class AnilistProvider
     }
     getRefreshToken()
     {
-
+        var self = this;
         return this._refreshToken()
             .then(data =>
             {
-                this._accessToken = data.token;
-                this._expires = data.expires;
-                this._refresh_token = data.refresh_token;
+                self._accessToken = data.token;
+                self._expires = data.expires;
+                self._refresh_token = data.refresh_token;
                 return {};
             })
-            .then(
-                result =>
-                {
-                    this.save();
-                })
+            .then(result =>
+            {
+                this.save();
+            })
+            .catch(err =>
+            {
+                debug(err);
+            });
     }
     _refreshToken()
     {
         if (!this._client._id || !this._client._secret || !this._code)
         {
-            return Promise.reject(new Error('Token does not exist or has expired'));
+            return Promise.reject(new Error('Missing Parameters'));
         }
         let formData = {
             grant_type: 'refresh_token',
@@ -141,11 +146,16 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
+                debug(`result of refresh_token ${JSON.stringify(result)}`)
                 return {
                     token: result.access_token,
                     expires: result.expires,
                     refresh_token: result.refresh_token
                 }
+            })
+            .catch(err =>
+            {
+                debug(err);
             });
     }
     authenticate()
@@ -246,6 +256,7 @@ class AnilistProvider
             refresh_token: this._refresh_token
         }
         console.log(temp);
+        writeToFile('password', JSON.stringify(temp));
     }
 }
 module.exports = AnilistProvider;
