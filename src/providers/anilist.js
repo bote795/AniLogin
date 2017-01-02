@@ -4,6 +4,8 @@ const request = require('./../util/request');
 const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
 const writeToFile = require('./../util/util').writeToFile;
+const querystring = require('query-string');
+const test = true; //local debug only
 //AnilistProvider 
 class AnilistProvider
 {
@@ -115,7 +117,8 @@ class AnilistProvider
             })
             .then(result =>
             {
-                this.save();
+                if(test)
+                    this.save();
             })
             .catch(err =>
             {
@@ -124,7 +127,7 @@ class AnilistProvider
     }
     _refreshToken()
     {
-        if (!this._client._id || !this._client._secret || !this._code)
+        if (!this._client._id || !this._client._secret || !this._refresh_token)
         {
             return Promise.reject(new Error('Missing Parameters'));
         }
@@ -132,13 +135,13 @@ class AnilistProvider
             grant_type: 'refresh_token',
             client_id: this._client._id,
             client_secret: this._client._secret,
-            refresh_token: this._code
+            refresh_token: this._refresh_token,
         };
         let opts = {
             method: 'post',
             headers:
             {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: JSON.stringify(formData)
         };
@@ -156,45 +159,67 @@ class AnilistProvider
             .catch(err =>
             {
                 debug(err);
+                return Promise.reject(err);
             });
     }
+    //authetnicates token that is passed to retrieve token to be able to start acting as user from
+    //normal pin from webstei
     authenticate()
     {
+        var self = this;
         return this._authenticate()
             .then(data =>
             {
-                this._accessToken = data.token;
-                this._expires = data.expires;
+                debug(`request went through`);
+                self._accessToken = data.token;
+                self._expires = data.expires;
+                self._refresh_token = data.refresh_token;
             })
+            .then(result =>
+            {
+                if(test)
+                    this.save();
+            })
+            .catch(err =>
+            {
+                debug(`There was an error authenticating`);
+            });
     }
     _authenticate()
     {
-        if (!this._client._id || !this._client._secret || !this._refresh_token)
+        if (!this._client._id || !this._client._secret || !this._code)
         {
             return Promise.reject(new Error('Token does not exist or has expired'));
         }
         let formData = {
-            grant_type: 'refresh_token',
+            grant_type: 'authorization_pin',
             client_id: this._client._id,
             client_secret: this._client._secret,
-            refresh_token: this._refresh_token
+            code: this._code
         };
         let opts = {
             method: 'post',
             headers:
             {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify(formData)
+            body: querystring.stringify(formData)
         };
+        debug(JSON.stringify(opts.body))
         debug(`Authenticating user with Anilist's API`);
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
                 return {
                     token: result.access_token,
-                    expires: result.expires
+                    expires: result.expires,
+                    refresh_token: result.refresh_token
                 }
+            })
+            .catch(err => 
+            {
+                debug(err);
+                return Promise.reject(err);
             });
     }
     _get(query, opts = {})
@@ -232,7 +257,7 @@ class AnilistProvider
         }
         opts.headers = {
             Authorization: `Basic ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded'
         };
         return request(this._baseAPIURL, query, opts)
             .catch(error =>
@@ -258,5 +283,6 @@ class AnilistProvider
         console.log(temp);
         writeToFile('password', JSON.stringify(temp));
     }
+
 }
 module.exports = AnilistProvider;

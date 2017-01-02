@@ -16,6 +16,7 @@ let request = function(url, query, opts = {})
         {
             if (response.status === 404 || response.status === 500)
             {
+                debug(`status: ${response.status}`);
                 throw new Error('Bad query');
             }
 
@@ -25,6 +26,10 @@ let request = function(url, query, opts = {})
             }
 
             return response.json();
+        })
+        .catch(err => 
+        {
+            return Promise.reject(err);
         });
 };
 
