@@ -48,3 +48,4 @@ Temporary Items
 
 node_modules
 src/secrets.js
+src/password
