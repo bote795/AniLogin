@@ -4,8 +4,10 @@ const request = require('./../util/request');
 const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
 const writeToFile = require('./../util/util').writeToFile;
-const querystring = require('query-string');
+const querystring = require('query-string'),
+      fs           = require('fs');
 const test = true; //local debug only
+const fileName = "password";
 //AnilistProvider 
 class AnilistProvider
 {
@@ -42,6 +44,10 @@ class AnilistProvider
         this._user._username = username;
         //pin code
         this._code = code;
+        if(test)
+        {
+            this.load();
+        }
     }
 
 
@@ -112,16 +118,16 @@ class AnilistProvider
             {
                 self._accessToken = data.token;
                 self._expires = data.expires;
-                self._refresh_token = data.refresh_token;
                 return {};
             })
             .then(result =>
             {
                 if(test)
-                    this.save();
+                    this.save("refresh_token");
             })
             .catch(err =>
             {
+                debug(`error in getRefreshToken`);
                 debug(err);
             });
     }
@@ -143,7 +149,7 @@ class AnilistProvider
             {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: JSON.stringify(formData)
+            body: querystring.stringify(formData)
         };
         debug(`Asking for for refreshToken Anilist's API`);
         return request(this._baseAPIURL, "auth/access_token", opts)
@@ -164,6 +170,7 @@ class AnilistProvider
     }
     //authetnicates token that is passed to retrieve token to be able to start acting as user from
     //normal pin from webstei
+    //Request access token
     authenticate()
     {
         var self = this;
@@ -178,7 +185,7 @@ class AnilistProvider
             .then(result =>
             {
                 if(test)
-                    this.save();
+                    this.save(fileName);
             })
             .catch(err =>
             {
@@ -232,7 +239,7 @@ class AnilistProvider
         debug(`Posting in Anilist's API at ${query}`);
         let opts = {
             method: 'post',
-            body: JSON.stringify(formData)
+            body:  querystring.stringify(formData)
         };
         return this._request(query, opts);
     }
@@ -241,7 +248,7 @@ class AnilistProvider
         debug(`Put in Anilist's API at ${query}`);
         let opts = {
             method: 'put',
-            body: JSON.stringify(formData)
+            body:  querystring.stringify(formData)
         };
         return this._request(query, opts);
     }
@@ -273,7 +280,7 @@ class AnilistProvider
                 }
             });
     }
-    save()
+    save(fn)
     {
         let temp = {
             access_token: this._accessToken,
@@ -281,7 +288,29 @@ class AnilistProvider
             refresh_token: this._refresh_token
         }
         console.log(temp);
-        writeToFile('password', JSON.stringify(temp));
+        writeToFile(fn, JSON.stringify(temp));
+    }
+    load()
+    {
+        debug("loading data from file...");
+        try
+        {
+            var data = fs.readFileSync(fileName, 'utf8');    
+        }
+        catch(e)
+        {
+            debug("error reading file data");
+        }
+        var parsedData;
+        if (data)
+        {
+            parsedData = JSON.parse(data);
+            this._accessToken = parsedData.access_token;
+            this._expires = parsedData.expires;
+            this._refresh_token = parsedData.refresh_token;
+            debug(`saving data to object from file`);
+        }        
+        
     }
 
 }
