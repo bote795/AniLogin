@@ -6,7 +6,7 @@ const now = function()
 }
 const isExpired = function(expirationTime)
 {
-    return expirationTime <= now() + 300
+    return expirationTime <= Date.now() + 3600
 };
 
 module.exports = {

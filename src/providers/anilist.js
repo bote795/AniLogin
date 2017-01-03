@@ -8,6 +8,7 @@ const querystring = require('query-string'),
       fs           = require('fs');
 const test = true; //local debug only
 const fileName = "password";
+const refreshFileName = "refresh_token";
 //AnilistProvider 
 class AnilistProvider
 {
@@ -46,13 +47,14 @@ class AnilistProvider
         this._code = code;
         if(test)
         {
-            this.load();
+            this.load(fileName);
+            this.load(refreshFileName);
         }
     }
 
 
     //GET: user/{id || displayname}/animelist
-    getAnimeList(username = this._user)
+    getAnimeList(username = this._user._username)
     {
         return this._get(`user/${username}/animelist`);
     }
@@ -123,7 +125,8 @@ class AnilistProvider
             .then(result =>
             {
                 if(test)
-                    this.save("refresh_token");
+                    this.save(refreshFileName);
+                return {};
             })
             .catch(err =>
             {
@@ -155,10 +158,11 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
+                var date = new Date();
                 debug(`result of refresh_token ${JSON.stringify(result)}`)
                 return {
                     token: result.access_token,
-                    expires: result.expires,
+                    expires: date.getTime()+3600,
                     refresh_token: result.refresh_token
                 }
             })
@@ -217,9 +221,10 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
+                var date = new Date();
                 return {
                     token: result.access_token,
-                    expires: result.expires,
+                    expires: date.getTime()+3600,
                     refresh_token: result.refresh_token
                 }
             })
@@ -229,7 +234,7 @@ class AnilistProvider
                 return Promise.reject(err);
             });
     }
-    _get(query, opts = {})
+    _get(query, opts = {method: 'get'})
     {
         debug(`Requesting ${query}`)
         return this._request(query, opts);
@@ -256,14 +261,15 @@ class AnilistProvider
     {
         let token = this._accessToken;
         let expires = this._expires;
+        let self = this;
         //this class uses tokens
 
-        if (!token || isExpired(expires))
+        if (!token)
         {
-            return Promise.reject(new Error('Token does not exist or has expired'));
+            return Promise.reject(new Error('Token does not exist'));
         }
         opts.headers = {
-            Authorization: `Basic ${token}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/x-www-form-urlencoded'
         };
         return request(this._baseAPIURL, query, opts)
@@ -271,12 +277,13 @@ class AnilistProvider
             {
                 if (error.message !== 'Token does not exist or has expired')
                 {
-                    throw error;
+                    return Promise.reject(error);
                 }
                 else
                 {
-                    return this.authenticate()
-                        .then(() => this.request(query, opts));
+                    debug(`request error: ${error.message}`);
+                    return self.getRefreshToken()
+                        .then(() => self._request(query, opts));
                 }
             });
     }
@@ -290,12 +297,12 @@ class AnilistProvider
         console.log(temp);
         writeToFile(fn, JSON.stringify(temp));
     }
-    load()
+    load(fn)
     {
         debug("loading data from file...");
         try
         {
-            var data = fs.readFileSync(fileName, 'utf8');    
+            var data = fs.readFileSync(fn, 'utf8');    
         }
         catch(e)
         {
@@ -305,9 +312,12 @@ class AnilistProvider
         if (data)
         {
             parsedData = JSON.parse(data);
-            this._accessToken = parsedData.access_token;
-            this._expires = parsedData.expires;
-            this._refresh_token = parsedData.refresh_token;
+            if(parsedData.access_token)
+                this._accessToken = parsedData.access_token;
+            if(parsedData.expires)
+                this._expires = parsedData.expires;
+            if(parsedData.refresh_token)
+                this._refresh_token = parsedData.refresh_token;
             debug(`saving data to object from file`);
         }        
         
