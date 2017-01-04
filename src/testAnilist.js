@@ -14,7 +14,24 @@
  anilistclient.getRefreshToken();*/
 
 
-debug("retrieve user list for user");
+/*debug("retrieve user list for user");
 anilistclient.getAnimeList().then(data =>{
 	console.log(JSON.stringify(data));
+});*/
+
+
+/*debug("search for attack on titan")
+anilistclient.searchAnimes("attack on titan").then(data =>{
+	console.log(JSON.stringify(data));
+});*/
+
+/*debug("add chaos;child anime to watching list")
+anilistclient.updateAnime(21126,{list_status: "watching"}).then(data=>{
+	console.log(JSON.stringify(data));
 });
+*/
+
+/*debug("change ep watched number for blue exorcist to ep 1")
+anilistclient.updateAnime(21861,{episodes_watched: 0}).then(data=>{
+	console.log(JSON.stringify(data));
+});*/
