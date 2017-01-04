@@ -14,13 +14,13 @@ let request = function(url, query, opts = {})
     return fetch(fullQuery, opts)
         .then(response =>
         {
-            if (response.status === 404 || response.status === 500)
+            if (response.status === 404)
             {
                 debug(`status: ${response.status}`);
                 throw new Error('Bad query');
             }
-
-            if (response.status === 401)
+            //for some reason anilist sends a 500 even when it has to do with the key
+            if (response.status === 401 || response.status === 500)
             {
                 throw new Error('Token does not exist or has expired');
             }
