@@ -11,5 +11,5 @@ Allow to login with
  
 
  ###TODO
- - humming bird
+ - kitsu
  - anime-planet 
