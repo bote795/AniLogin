@@ -22,7 +22,7 @@ myanimelistclient.searchAnimes("attack on titan").then(data =>{
 	console.log(JSON.stringify(data));
 });*/
 
-//TODO fix add anime it works but returns error
+//fixed but issue in npm package
 debug("add Kono Subarashii to watching list")
 myanimelistclient.addAnime(32937,{status: "watching"}).then(data=>{
 	console.log(JSON.stringify(data));
