@@ -9,7 +9,11 @@ class MyAnimeListProvider
     	debug("in constructor");
     	this.client = popura(username, password);
     }
-
+    //make sure that credentials are correct
+    authenticate()
+    {
+    	return this.client.verifyAuth();
+    }
     getAnimeList()
     {
         return this.client.getAnimeList();

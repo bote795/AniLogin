@@ -4,6 +4,13 @@ const debug = require('debug')('myanimelist:test');
 
 const myanimelistclient = new myanimelistProvider(myAnimeListKeys.client._id, myAnimeListKeys.client._secret);
 
+/* debug("authenticate make sure credentials are correct");
+ myanimelistclient.authenticate().then(data =>{
+	console.log(JSON.stringify(data));
+});*/
+
+
+
 /*debug("retrieve user list for user");
 myanimelistclient.getAnimeList().then(data =>{
 	console.log(JSON.stringify(data));
@@ -16,9 +23,12 @@ myanimelistclient.searchAnimes("attack on titan").then(data =>{
 });*/
 
 //TODO fix add anime it works but returns error
-debug("add chaos;child anime to watching list")
-myanimelistclient.addAnime(30485,{status: "watching"}).then(data=>{
+debug("add Kono Subarashii to watching list")
+myanimelistclient.addAnime(32937,{status: "watching"}).then(data=>{
 	console.log(JSON.stringify(data));
+})
+.catch(err=>{
+	console.log(err);
 });
 
 
