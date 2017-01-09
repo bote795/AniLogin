@@ -8,7 +8,11 @@ Create a node package that will have all anime provider login systems integrated
 Allow to login with
  - MyanimeList 
  - anilist 
+ 
+
+ ###TODO
  - humming bird
+ - anime-planet 
   
 TODO:
 - make sure popura package
