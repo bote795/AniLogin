@@ -13,10 +13,3 @@ Allow to login with
  ###TODO
  - humming bird
  - anime-planet 
-  
-TODO:
-- make sure popura package
- * has https corrected
-   * fix new https only issue
- * \utils\index
-   * make sure :82 change "201 created" to just "created" to fix add anime issue
