@@ -1,5 +1,5 @@
  var anilistProvider = require('./providers/anilist');
- const anilistKeys = require('./secrets.js');
+ const anilistKeys = require('./secrets.js').anilist;
  const debug = require('debug')('anilogin:test');
  debug("create anilist client");
  //https://anilist.co/api/auth/authorize?grant_type=authorization_pin&client_id=bote795-jhv68&response_type=pin
@@ -14,10 +14,10 @@
  anilistclient.getRefreshToken();*/
 
 
-/*debug("retrieve user list for user");
+debug("retrieve user list for user");
 anilistclient.getAnimeList().then(data =>{
 	console.log(JSON.stringify(data));
-});*/
+});
 
 
 /*debug("search for attack on titan")
