@@ -34,7 +34,7 @@ class AnilistProvider
           _secret: client_secret,
         }
      */
-    constructor(client, username, code)
+    constructor(client, username, code, save)
     {
         debug("in constructor");
         this._client = Object.assign(
@@ -45,10 +45,13 @@ class AnilistProvider
         this._user._username = username;
         //pin code
         this._code = code;
+        //saving function
+        this.save = save;
+
         if(test)
         {
-            this.load(fileName);
-            this.load(refreshFileName);
+            this._load(fileName);
+            this._load(refreshFileName);
         }
     }
 
@@ -125,7 +128,7 @@ class AnilistProvider
             .then(result =>
             {
                 if(test)
-                    this.save(refreshFileName);
+                    this._save(refreshFileName);
                 return {};
             })
             .catch(err =>
@@ -189,7 +192,7 @@ class AnilistProvider
             .then(result =>
             {
                 if(test)
-                    this.save(fileName);
+                    this._save(fileName);
             })
             .catch(err =>
             {
@@ -200,7 +203,7 @@ class AnilistProvider
     {
         if (!this._client._id || !this._client._secret || !this._code)
         {
-            return Promise.reject(new Error('Token does not exist or has expired'));
+            return Promise.reject(new Error('Missing Parameters to authenticate'));
         }
         let formData = {
             grant_type: 'authorization_pin',
@@ -287,17 +290,23 @@ class AnilistProvider
                 }
             });
     }
-    save(fn)
+    //will take in a promise that will take in the data
+    //that needs to be saved and will be saved
+    //however the passed in promise handles it
+    _save(fn)
     {
         let temp = {
             access_token: this._accessToken,
             expires: this._expires,
             refresh_token: this._refresh_token
         }
-        console.log(temp);
-        writeToFile(fn, JSON.stringify(temp));
+        debug(temp);
+        this.save(fn,temp);
+
     }
-    load(fn)
+    //will take in a promise that will return the data
+    //then it will actually store it into the object
+    _load(fn)
     {
         debug("loading data from file...");
         try
@@ -312,15 +321,19 @@ class AnilistProvider
         if (data)
         {
             parsedData = JSON.parse(data);
-            if(parsedData.access_token)
-                this._accessToken = parsedData.access_token;
-            if(parsedData.expires)
-                this._expires = parsedData.expires;
-            if(parsedData.refresh_token)
-                this._refresh_token = parsedData.refresh_token;
+            this.setTokens(parsedData);   
             debug(`saving data to object from file`);
-        }        
-        
+        }     
+    }
+
+    setTokens(parsedData)
+    {
+        if(parsedData.access_token)
+            this._accessToken = parsedData.access_token;
+        if(parsedData.expires)
+            this._expires = parsedData.expires;
+        if(parsedData.refresh_token)
+            this._refresh_token = parsedData.refresh_token;
     }
 
 }

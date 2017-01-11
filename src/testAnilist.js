@@ -1,9 +1,21 @@
  var anilistProvider = require('./providers/anilist');
  const anilistKeys = require('./secrets.js').anilist;
+ const writeToFile = require('./util/util').writeToFile,
+ 	   fs           = require('fs');
  const debug = require('debug')('anilogin:test');
  debug("create anilist client");
+
+//save data to file
+function save (fn, data)
+{
+	debug(`save file into: ${fn}`)
+	writeToFile(fn, JSON.stringify(data));
+	return Promise.resolve();
+}
+
+
  //https://anilist.co/api/auth/authorize?grant_type=authorization_pin&client_id=bote795-jhv68&response_type=pin
- const anilistclient = new anilistProvider(anilistKeys.client, 'bote795', "kW1gYElZ1HHbRL3HWrlnjSx8Lf4gqa7hBD1HTHJE");
+ const anilistclient = new anilistProvider(anilistKeys.client, 'bote795',"kW1gYElZ1HHbRL3HWrlnjSx8Lf4gqa7hBD1HTHJE", save);
  
 /* debug("authenticate pin");
  anilistclient.authenticate()
