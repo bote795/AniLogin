@@ -1,6 +1,6 @@
- var anilistProvider = require('./providers/anilist');
- const anilistKeys = require('./secrets.js').anilist;
- const writeToFile = require('./util/util').writeToFile,
+ var anilistProvider = require('./../src/providers/anilist');
+ const anilistKeys = require('./../src/secrets.js').anilist;
+ const writeToFile = require('./../src/util/util').writeToFile,
  	   fs           = require('fs');
  const debug = require('debug')('anilogin:test');
  debug("create anilist client");
