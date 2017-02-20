@@ -135,6 +135,7 @@ class AnilistProvider
             {
                 debug(`error in getRefreshToken`);
                 debug(err);
+                Promise.reject(`error in getRefreshToken`);
             });
     }
     _refreshToken()
@@ -193,9 +194,11 @@ class AnilistProvider
             {
                 if(test)
                     this._save(fileName);
+                return "success";
             })
             .catch(err =>
             {
+                return Promise.reject("Error Authenticating");
                 debug(`There was an error authenticating`);
             });
     }

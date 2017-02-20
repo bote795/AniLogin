@@ -4,7 +4,7 @@
   "description": "Anime login system\r #Project Information\r ##Goal\r Create a node package that will have all anime provider login systems integrated.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
