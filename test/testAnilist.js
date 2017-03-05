@@ -31,18 +31,26 @@
      //     const result = await anilistLogin.authenticate();
      //     expect(result).to.equal(`success`);
      // });
-     // it('authenticate() fail authenticate pin', async function()
-     // {
-     //     const result = await anilistclient.authenticate();
-     //     console.log(result);
-     //     expect(result).to.equal(`Error Authenticating`);
-     // });
+     it('authenticate() fail authenticate pin', async function()
+     {
+         try
+         {
+             const result = await anilistclient.authenticate();
+         }
+         catch (e)
+         {
+             expect(e).to.equal("Error Authenticating");
+         }
+     });
 
-     // it('getRefreshToken() retrieve a refresh token', async function()
-     // {
-     //     const result = await anilistclient.getRefreshToken();
-     //     expect(result).to.equal(`success`);
-     // });
+     it('getRefreshToken() retrieve a refresh token', async function()
+     {
+         const result = await anilistclient.getRefreshToken();
+
+         expect(result).to.equal(`success`);
+     });
+
+
      // it('getRefreshToken() fail retrieve a refresh token', async function()
      // {
      //     const result = await anilistclient.getRefreshToken()
@@ -83,21 +91,3 @@
          expect(result).to.equal(1);
      });
  });
-
-
- /* debug("authenticate pin");
-  anilistclient.authenticate()
-  */
-
- //add a way to not add the code and just load up the refresh key
- /*  debug("lets get token refresh");
-   anilistclient.getRefreshToken();
- */
-
- /* debug("retrieve user list for user");
-  anilistclient.getAnimeList().then(data =>
-  {
-      console.log(JSON.stringify(data));
-  });
-
- */

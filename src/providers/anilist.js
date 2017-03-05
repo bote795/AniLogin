@@ -137,7 +137,7 @@ class AnilistProvider
             {
                 if (test)
                     this._save(refreshFileName);
-                return {};
+                return 'success';
             })
             .catch(err =>
             {
@@ -235,6 +235,10 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
+                if (result.error)
+                {
+                    return Promise.reject(result.error.error_description)
+                }
                 var date = new Date();
                 return {
                     token: result.access_token,
