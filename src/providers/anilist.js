@@ -30,13 +30,24 @@ class AnilistProvider
      * this._code
      */
     /*
+        Params:
         client Example:
         {
           _id: client_id,
           _secret: client_secret,
         }
+        user_info: 
+        {
+            username: String,
+            code: String,
+            refresh_token: {
+                expires: Num,
+                token: String               
+            }
+
+        }
      */
-    constructor(client, username, code, save)
+    constructor(client, user_info, save)
     {
         debug("in constructor");
         this._client = Object.assign(
@@ -44,17 +55,16 @@ class AnilistProvider
         debug(this._client);
         this._baseAPIURL = "https://anilist.co/api/";
         this._user = {};
-        this._user._username = username;
+        this._user._username = user_info.username;
         //pin code
-        this._code = code;
+        this._code = user_info.code;
+
+        if (typeof user_info.refresh_token !== "undefined")
+        {
+            this.setTokens(user_info.refresh_token);
+        }
         //saving function
         this.save = save;
-
-        if (test)
-        {
-            this._load(fileName);
-            this._load(refreshFileName);
-        }
     }
 
 
@@ -318,39 +328,16 @@ class AnilistProvider
         //that needs to be saved and will be saved
         //however the passed in promise handles it
     _save(fn)
-        {
-            let temp = {
-                access_token: this._accessToken,
-                expires: this._expires,
-                refresh_token: this._refresh_token
-            }
-            debug(temp);
-            this.save(fn, temp);
-
-        }
-        //will take in a promise that will return the data
-        //then it will actually store it into the object
-    _load(fn)
     {
-        debug("loading data from file...");
-        try
-        {
-            var data = fs.readFileSync(fn, 'utf8');
+        let temp = {
+            access_token: this._accessToken,
+            expires: this._expires,
+            refresh_token: this._refresh_token
         }
-        catch (e)
-        {
-            debug("error reading file data");
-        }
-        var parsedData;
-        if (data)
-        {
-            parsedData = JSON.parse(data);
-            this.setTokens(parsedData);
-            debug(`saving data to object from file`);
-            debug(data);
-        }
-    }
+        debug(temp);
+        this.save(fn, temp);
 
+    }
     setTokens(parsedData)
     {
         if (parsedData.access_token)

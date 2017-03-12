@@ -26,10 +26,9 @@ function AniLogin(provider)
             {
                 throw new Error("Not enough arguments");
             }
-        var username = arguments[1];
-        code = arguments[2],
-        save = arguments[3];
-        login = new anilistProvider(anilistKeys.client, username, code, save);
+        var user_info = arguments[1];
+        save = arguments[2];
+        login = new anilistProvider(anilistKeys.client, user_info, code, save);
         break;
     }
     return login;
