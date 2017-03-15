@@ -1,5 +1,5 @@
-var myanimelistProvider = require('./providers/myanimelist');
-const myAnimeListKeys = require('./secrets.js').myAnimeList;
+var myanimelistProvider = require('./../src/providers/myanimelist');
+const myAnimeListKeys = require('./../src/secrets.js').myAnimeList;
 const debug = require('debug')('myanimelist:test');
 
 const myanimelistclient = new myanimelistProvider(myAnimeListKeys.client._id, myAnimeListKeys.client._secret);

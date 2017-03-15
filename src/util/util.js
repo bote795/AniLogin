@@ -14,7 +14,7 @@ module.exports = {
     writeToFile: (filename, text) =>
     {
         var fs = require('fs');
-        var path = `./${filename}`;
+        var path = `${filename}`;
         fs.writeFile(path, text, function(err)
         {
             if (err)

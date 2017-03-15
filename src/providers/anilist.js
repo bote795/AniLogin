@@ -4,11 +4,7 @@ const request = require('./../util/request');
 const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
 const writeToFile = require('./../util/util').writeToFile;
-const querystring = require('query-string'),
-      fs           = require('fs');
-const test = true; //local debug only
-const fileName = "password";
-const refreshFileName = "refresh_token";
+const querystring = require('query-string');
 //AnilistProvider 
 class AnilistProvider
 {
@@ -28,13 +24,24 @@ class AnilistProvider
      * this._code
      */
     /*
+        Params:
         client Example:
         {
           _id: client_id,
           _secret: client_secret,
         }
+        user_info: 
+        {
+            username: String,
+            code: String,
+            refresh_token: {
+                expires: Num,
+                token: String               
+            }
+
+        }
      */
-    constructor(client, username, code, save)
+    constructor(client, user_info, save)
     {
         debug("in constructor");
         this._client = Object.assign(
@@ -42,17 +49,16 @@ class AnilistProvider
         debug(this._client);
         this._baseAPIURL = "https://anilist.co/api/";
         this._user = {};
-        this._user._username = username;
+        this._user._username = user_info.username;
         //pin code
-        this._code = code;
+        this._code = user_info.code;
+
+        if (typeof user_info.refresh_token !== "undefined")
+        {
+            this.setTokens(user_info.refresh_token);
+        }
         //saving function
         this.save = save;
-
-        if(test)
-        {
-            this._load(fileName);
-            this._load(refreshFileName);
-        }
     }
 
 
@@ -84,6 +90,12 @@ class AnilistProvider
         {}, values);
         formData.id = id;
         return this._post(`animelist`, formData);
+    }
+
+    deleteAnime(id)
+    {
+
+        return this._delete(`animelist/${id}`);
     }
 
     //id 
@@ -127,57 +139,57 @@ class AnilistProvider
             })
             .then(result =>
             {
-                if(test)
-                    this._save(refreshFileName);
-                return {};
+                self._save();
+                return 'success';
             })
             .catch(err =>
             {
                 debug(`error in getRefreshToken`);
                 debug(err);
+                Promise.reject(`error in getRefreshToken`);
             });
     }
     _refreshToken()
-    {
-        if (!this._client._id || !this._client._secret || !this._refresh_token)
         {
-            return Promise.reject(new Error('Missing Parameters'));
+            if (!this._client._id || !this._client._secret || !this._refresh_token)
+            {
+                return Promise.reject(new Error('Missing Parameters'));
+            }
+            let formData = {
+                grant_type: 'refresh_token',
+                client_id: this._client._id,
+                client_secret: this._client._secret,
+                refresh_token: this._refresh_token,
+            };
+            let opts = {
+                method: 'post',
+                headers:
+                {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: querystring.stringify(formData)
+            };
+            debug(`Asking for for refreshToken Anilist's API`);
+            return request(this._baseAPIURL, "auth/access_token", opts)
+                .then(result =>
+                {
+                    var date = new Date();
+                    debug(`result of refresh_token ${JSON.stringify(result)}`)
+                    return {
+                        token: result.access_token,
+                        expires: date.getTime() + 3600,
+                        refresh_token: result.refresh_token
+                    }
+                })
+                .catch(err =>
+                {
+                    debug(err);
+                    return Promise.reject(err);
+                });
         }
-        let formData = {
-            grant_type: 'refresh_token',
-            client_id: this._client._id,
-            client_secret: this._client._secret,
-            refresh_token: this._refresh_token,
-        };
-        let opts = {
-            method: 'post',
-            headers:
-            {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: querystring.stringify(formData)
-        };
-        debug(`Asking for for refreshToken Anilist's API`);
-        return request(this._baseAPIURL, "auth/access_token", opts)
-            .then(result =>
-            {
-                var date = new Date();
-                debug(`result of refresh_token ${JSON.stringify(result)}`)
-                return {
-                    token: result.access_token,
-                    expires: date.getTime()+3600,
-                    refresh_token: result.refresh_token
-                }
-            })
-            .catch(err =>
-            {
-                debug(err);
-                return Promise.reject(err);
-            });
-    }
-    //authetnicates token that is passed to retrieve token to be able to start acting as user from
-    //normal pin from webstei
-    //Request access token
+        //authetnicates token that is passed to retrieve token to be able to start acting as user from
+        //normal pin from webstei
+        //Request access token
     authenticate()
     {
         var self = this;
@@ -191,11 +203,12 @@ class AnilistProvider
             })
             .then(result =>
             {
-                if(test)
-                    this._save(fileName);
+                this._save();
+                return "success";
             })
             .catch(err =>
             {
+                return Promise.reject("Error Authenticating");
                 debug(`There was an error authenticating`);
             });
     }
@@ -224,20 +237,33 @@ class AnilistProvider
         return request(this._baseAPIURL, "auth/access_token", opts)
             .then(result =>
             {
+                if (result.error)
+                {
+                    return Promise.reject(result.error.error_description)
+                }
                 var date = new Date();
                 return {
                     token: result.access_token,
-                    expires: date.getTime()+3600,
+                    expires: date.getTime() + 3600,
                     refresh_token: result.refresh_token
                 }
             })
-            .catch(err => 
+            .catch(err =>
             {
                 debug(err);
                 return Promise.reject(err);
             });
     }
-    _get(query, opts = {method: 'get'})
+    _get(query, opts = {
+        method: 'get'
+    })
+    {
+        debug(`Requesting ${query}`)
+        return this._request(query, opts);
+    }
+    _delete(query, opts = {
+        method: 'delete'
+    })
     {
         debug(`Requesting ${query}`)
         return this._request(query, opts);
@@ -247,7 +273,7 @@ class AnilistProvider
         debug(`Posting in Anilist's API at ${query}`);
         let opts = {
             method: 'post',
-            body:  querystring.stringify(formData)
+            body: querystring.stringify(formData)
         };
         return this._request(query, opts);
     }
@@ -256,44 +282,44 @@ class AnilistProvider
         debug(`Put in Anilist's API at ${query}`);
         let opts = {
             method: 'put',
-            body:  querystring.stringify(formData)
+            body: querystring.stringify(formData)
         };
         return this._request(query, opts);
     }
     _request(query, opts)
-    {
-        let token = this._accessToken;
-        let expires = this._expires;
-        let self = this;
-        //this class uses tokens
-
-        if (!token)
         {
-            return Promise.reject(new Error('Token does not exist'));
-        }
-        opts.headers = {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
-        };
-        return request(this._baseAPIURL, query, opts)
-            .catch(error =>
+            let token = this._accessToken;
+            let expires = this._expires;
+            let self = this;
+            //this class uses tokens
+
+            if (!token)
             {
-                if (error.message !== 'Token does not exist or has expired')
+                return Promise.reject(new Error('Token does not exist'));
+            }
+            opts.headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            };
+            return request(this._baseAPIURL, query, opts)
+                .catch(error =>
                 {
-                    return Promise.reject(error);
-                }
-                else
-                {
-                    debug(`request error: ${error.message}`);
-                    return self.getRefreshToken()
-                        .then(() => self._request(query, opts));
-                }
-            });
-    }
-    //will take in a promise that will take in the data
-    //that needs to be saved and will be saved
-    //however the passed in promise handles it
-    _save(fn)
+                    if (error.message !== 'Token does not exist or has expired')
+                    {
+                        return Promise.reject(error);
+                    }
+                    else
+                    {
+                        debug(`request error: ${error.message}`);
+                        return self.getRefreshToken()
+                            .then(() => self._request(query, opts));
+                    }
+                });
+        }
+        //will take in a promise that will take in the data
+        //that needs to be saved and will be saved
+        //however the passed in promise handles it
+    _save()
     {
         let temp = {
             access_token: this._accessToken,
@@ -301,38 +327,15 @@ class AnilistProvider
             refresh_token: this._refresh_token
         }
         debug(temp);
-        this.save(fn,temp);
-
+        this.save(temp);
     }
-    //will take in a promise that will return the data
-    //then it will actually store it into the object
-    _load(fn)
-    {
-        debug("loading data from file...");
-        try
-        {
-            var data = fs.readFileSync(fn, 'utf8');    
-        }
-        catch(e)
-        {
-            debug("error reading file data");
-        }
-        var parsedData;
-        if (data)
-        {
-            parsedData = JSON.parse(data);
-            this.setTokens(parsedData);   
-            debug(`saving data to object from file`);
-        }     
-    }
-
     setTokens(parsedData)
     {
-        if(parsedData.access_token)
+        if (parsedData.access_token)
             this._accessToken = parsedData.access_token;
-        if(parsedData.expires)
+        if (parsedData.expires)
             this._expires = parsedData.expires;
-        if(parsedData.refresh_token)
+        if (parsedData.refresh_token)
             this._refresh_token = parsedData.refresh_token;
     }
 
