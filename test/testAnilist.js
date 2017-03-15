@@ -41,10 +41,10 @@
      return promise;
  }
  //save data to file
- function save(fn, data)
+ function save(data)
  {
-     debug(`save file into: ${fn}`)
-     writeToFile(fn, JSON.stringify(data));
+     debug(`save file into: ${refreshFileName}`)
+     writeToFile(refreshFileName, JSON.stringify(data));
      return Promise.resolve();
  }
 

@@ -4,13 +4,7 @@ const request = require('./../util/request');
 const isExpired = require('./../util/util').isExpired;
 const debug = require('debug')('anilogin:object');
 const writeToFile = require('./../util/util').writeToFile;
-const querystring = require('query-string'),
-    fs = require('fs'),
-    path = require('path');
-const test = true; //local debug only
-const start_path = "./../"
-const fileName = path.join(__dirname, start_path, "password");
-const refreshFileName = path.join(__dirname, start_path, "refresh_token");
+const querystring = require('query-string');
 //AnilistProvider 
 class AnilistProvider
 {
@@ -145,8 +139,7 @@ class AnilistProvider
             })
             .then(result =>
             {
-                if (test)
-                    this._save(refreshFileName);
+                self._save();
                 return 'success';
             })
             .catch(err =>
@@ -210,8 +203,7 @@ class AnilistProvider
             })
             .then(result =>
             {
-                if (test)
-                    this._save(fileName);
+                this._save();
                 return "success";
             })
             .catch(err =>
@@ -327,7 +319,7 @@ class AnilistProvider
         //will take in a promise that will take in the data
         //that needs to be saved and will be saved
         //however the passed in promise handles it
-    _save(fn)
+    _save()
     {
         let temp = {
             access_token: this._accessToken,
@@ -335,8 +327,7 @@ class AnilistProvider
             refresh_token: this._refresh_token
         }
         debug(temp);
-        this.save(fn, temp);
-
+        this.save(temp);
     }
     setTokens(parsedData)
     {
