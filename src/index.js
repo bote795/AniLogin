@@ -1,5 +1,6 @@
 var anilistProvider = require('./providers/anilist');
 var myanimelistProvider = require('./providers/myanimelist');
+const anilistKeys = require('./../src/secrets.js').anilist;
 /**
  * AniLogin description
  * @param {String} provider   [provider to use]
@@ -7,7 +8,8 @@ var myanimelistProvider = require('./providers/myanimelist');
  */
 function AniLogin(provider)
 {
-    const login;
+    var login;
+
     switch (provider)
     {
         'myanimelist':
