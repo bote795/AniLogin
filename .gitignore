@@ -47,6 +47,6 @@ Temporary Items
 .apdisk
 
 node_modules
-src/secrets.js
 src/password
 src/refresh_token
+*.env
