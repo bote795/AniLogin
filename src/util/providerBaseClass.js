@@ -1,17 +1,10 @@
 'use strict';
 
 //animeProvider Example
+/*
 class AnimeProvider
 {
-    /**
-     * Possible user params
-     * this._user: {
-     *  _username: '',
-     *  _id: '',
-     * }
-     * this._authToken
-     * this._baseAPIURL
-     */
+
     constructor()
     {
         //example https://anilist.co/api/
@@ -60,3 +53,4 @@ class AnimeProvider
     }
 
 }
+*/
