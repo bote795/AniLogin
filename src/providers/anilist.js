@@ -40,6 +40,12 @@ class AnilistProvider
             }
 
         }
+        save: save function takes an object:
+        {
+            access_token: string,
+            expires: date,
+            refresh_token: string
+        }
      */
     constructor(client, user_info, save)
     {
