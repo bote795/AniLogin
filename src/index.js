@@ -24,13 +24,13 @@ function AniLogin(provider)
             break;
         case 'anilist':
             //check for params
-            if (arguments.length != 4)
+            if (arguments.length != 3)
             {
                 throw new Error("Not enough arguments");
             }
             var user_info = arguments[1];
             save = arguments[2];
-            login = new anilistProvider(anilistKeys.client, user_info, code, save);
+            login = new anilistProvider(anilistKeys.client, user_info, save);
             break;
     }
     return login;

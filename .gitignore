@@ -51,3 +51,4 @@ src/password
 src/refresh_token
 *.env
 lib/
+bundle.js
