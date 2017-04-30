@@ -52,3 +52,4 @@ src/refresh_token
 *.env
 lib/
 bundle.js
+bundle.min.js
