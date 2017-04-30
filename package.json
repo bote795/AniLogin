@@ -9,6 +9,7 @@
         "env": "$env:DEBUG =\"anilogin:*,myanimelist:*\"",
         "compile": "babel -d lib/ src/",
         "bundle-test": "./node_modules/.bin/browserify lib/index.js --debug --standalone AniLogin -o bundle.js",
+        "bundle": "./node_modules/.bin/browserify lib/index.js --standalone AniLogin -o | uglifyjs -c -m > bundle.min.js",
         "clientBuildDebug": "npm run compile && npm run bundle-test",
         "clientBuild": "npm run compile && npm run bundle"
     },
