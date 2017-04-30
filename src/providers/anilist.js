@@ -35,8 +35,9 @@ class AnilistProvider
             username: String,
             code: String,
             refresh_token: {
+                access_token: string,
                 expires: Num,
-                token: String               
+                refresh_token: String               
             }
 
         }

@@ -1,6 +1,6 @@
 var anilistProvider = require('./providers/anilist');
 var myanimelistProvider = require('./providers/myanimelist');
-const anilistKeys = require('./../src/secrets.js').anilist;
+var anilistKeys = require('./../src/secrets.js').anilist;
 /**
  * AniLogin description
  * @param {String} provider   [provider to use]
@@ -24,12 +24,29 @@ function AniLogin(provider)
             break;
         case 'anilist':
             //check for params
-            if (arguments.length != 3)
+            //for client side have them pass the client secrets as a param
+            //if node module read from .env file
+            var user_info;
+            if (!anilistKeys._id)
             {
-                throw new Error("Not enough arguments");
+                if (arguments.length != 4)
+                {
+                    throw new Error("Not enough arguments");
+                }
+                anilistKeys = arguments[1];
+                user_info = arguments[2];
+                save = arguments[3];
             }
-            var user_info = arguments[1];
-            save = arguments[2];
+            else
+            {
+                if (arguments.length != 3)
+                {
+                    throw new Error("Not enough arguments");
+                }
+                user_info = arguments[1];
+                save = arguments[2];
+            }
+
             login = new anilistProvider(anilistKeys.client, user_info, save);
             break;
     }
