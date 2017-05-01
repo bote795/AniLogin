@@ -27,6 +27,7 @@ function AniLogin(provider)
             //for client side have them pass the client secrets as a param
             //if node module read from .env file
             var user_info;
+            var save;
             if (!anilistKeys._id)
             {
                 if (arguments.length != 4)
