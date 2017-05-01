@@ -2,11 +2,11 @@
 const debug = require('debug')('anilogin:util');
 const now = function()
 {
-    return Math.floor(Date.now() / 1000);
-}
+    return Math.floor(Date.now() + 3600 / 1000);
+};
 const isExpired = function(expirationTime)
 {
-    return expirationTime <= Date.now() + 3600
+    return expirationTime <= Date.now();
 };
 
 module.exports = {
