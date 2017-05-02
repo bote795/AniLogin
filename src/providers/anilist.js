@@ -215,7 +215,7 @@ class AnilistProvider
             })
             .catch(err =>
             {
-                return Promise.reject("Error Authenticating");
+                return Promise.reject("Error Authenticating: " + err);
                 debug(`There was an error authenticating`);
             });
     }
@@ -253,7 +253,7 @@ class AnilistProvider
                     token: result.access_token,
                     expires: date.getTime() + 3600,
                     refresh_token: result.refresh_token
-                }
+                };
             })
             .catch(err =>
             {

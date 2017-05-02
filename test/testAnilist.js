@@ -100,7 +100,7 @@
          }
          catch (e)
          {
-             expect(e).to.equal("Error Authenticating");
+             expect(e).to.match(/Error Authenticating:/);
          }
      });
 
